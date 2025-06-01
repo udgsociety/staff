@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recensement Équipe RP</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .controls {
+            padding: 20px 30px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #11998e, #38ef7d);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .filter-group label {
+            font-weight: 500;
+            color: #495057;
+        }
+
+        .filter-group select {
+            padding: 8px 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 30px;
+            background: #f8f9fa;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #6c757d;
+            font-weight: 500;
+        }
+
+        .lore { color: #e74c3c; }
+        .mj { color: #3498db; }
+        .animation { color: #f39c12; }
+        .total { color: #27ae60; }
+
+        .table-container {
+            padding: 30px;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        th {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            color: white;
+            padding: 15px 10px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 14px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        td {
+            padding: 12px 10px;
+            border-bottom: 1px solid #e9ecef;
+            font-size: 14px;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .equipe-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .equipe-lore {
+            background: #fee;
+            color: #e74c3c;
+            border: 1px solid #e74c3c;
+        }
+
+        .equipe-mj {
+            background: #eef;
+            color: #3498db;
+            border: 1px solid #3498db;
+        }
+
+        .equipe-animation {
+            background: #fff8e1;
+            color: #f39c12;
+            border: 1px solid #f39c12;
+        }
+
+        .status-actif {
+            color: #27ae60;
+            font-weight: 600;
+        }
+
+        .status-inactif {
+            color: #e74c3c;
+            font-weight: 600;
+        }
+
+        .status-pause {
+            color: #f39c12;
+            font-weight: 600;
+        }
+
+        .editable {
+            background: transparent;
+            border: none;
+            width: 100%;
+            font-size: 14px;
+        }
+
+        .editable:focus {
+            outline: 2px solid #667eea;
+            background: #f8f9fa;
+            border-radius: 4px;
+        }
+
+        .notes {
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .export-section {
+            padding: 30px;
+            background: #f8f9fa;
+            border-top: 1px solid #e9ecef;
+            text-align: center;
+        }
+
+        .export-section h3 {
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 500px;
+            width: 90%;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📋 Recensement Équipe RP</h1>
+            <p>Gestion complète des équipes Lore, MJ et Animation</p>
+        </div>
+
+        <div class="controls">
+            <button class="btn btn-success" onclick="openAddModal()">➕ Ajouter Membre</button>
+            <button class="btn btn-primary" onclick="exportToCSV()">📊 Exporter CSV</button>
+            <button class="btn btn-warning" onclick="generateReport()">📄 Rapport Complet</button>
+            
+            <div class="filter-group">
+                <label>Équipe:</label>
+                <select id="filterEquipe" onchange="filterTable()">
+                    <option value="">Toutes</option>
+                    <option value="Lore">Lore</option>
+                    <option value="MJ">MJ</option>
+                    <option value="Animation">Animation</option>
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label>Statut:</label>
+                <select id="filterStatut" onchange="filterTable()">
+                    <option value="">Tous</option>
+                    <option value="Actif">Actif</option>
+                    <option value="Inactif">Inactif</option>
+                    <option value="Pause">Pause</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number lore" id="statsLore">3</div>
+                <div class="stat-label">Équipe Lore</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number mj" id="statsMj">4</div>
+                <div class="stat-label">Équipe MJ</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number animation" id="statsAnimation">2</div>
+                <div class="stat-label">Équipe Animation</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number total" id="statsTotal">9</div>
+                <div class="stat-label">Total Membres</div>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <table id="equipeTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nom/Pseudo</th>
+                        <th>Discord</th>
+                        <th>Équipe</th>
+                        <th>Rôle/Spécialité</th>
+                        <th>Statut</th>
+                        <th>Date d'entrée</th>
+                        <th>Heures/semaine</th>
+                        <th>Dernière Activité</th>
+                        <th>Notes</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="equipeTableBody">
+                    <!-- Données d'exemple -->
+                    <tr data-equipe="Lore" data-statut="Actif">
+                        <td>001</td>
+                        <td><input class="editable" value="Alexandre_RP" onchange="saveData()"></td>
+                        <td><input class="editable" value="Alex#1234" onchange="saveData()"></td>
+                        <td><span class="equipe-badge equipe-lore">Lore</span></td>
+                        <td><input class="editable" value="Lead Lore" onchange="saveData()"></td>
+                        <td><span class="status-actif">Actif</span></td>
+                        <td><input class="editable" type="date" value="2024-01-15" onchange="saveData()"></td>
+                        <td><input class="editable" value="20" onchange="saveData()"></td>
+                        <td><input class="editable" type="date" value="2025-05-30" onchange="saveData()"></td>
+                        <td class="notes"><input class="editable" value="Très impliqué, excellente créativité" onchange="saveData()"></td>
+                        <td><button class="btn btn-warning" onclick="editMember(this)">✏️</button></td>
+                    </tr>
+                    <tr data-equipe="MJ" data-statut="Actif">
+                        <td>002</td>
+                        <td><input class="editable" value="Marie_GM" onchange="saveData()"></td>
+                        <td><input class="editable" value="Marie#5678" onchange="saveData()"></td>
+                        <td><span class="equipe-badge equipe-mj">MJ</span></td>
+                        <td><input class="editable" value="MJ Principal" onchange="saveData()"></td>
+                        <td><span class="status-actif">Actif</span></td>
+                        <td><input class="editable" type="date" value="2024-02-20" onchange="saveData()"></td>
+                        <td><input class="editable" value="25" onchange="saveData()"></td>
+                        <td><input class="editable" type="date" value="2025-05-29" onchange="saveData()"></td>
+                        <td class="notes"><input class="editable" value="Gère les événements majeurs" onchange="saveData()"></td>
+                        <td><button class="btn btn-warning" onclick="editMember(this)">✏️</button></td>
+                    </tr>
+                    <tr data-equipe="Animation" data-statut="Actif">
+                        <td>003</td>
+                        <td><input class="editable" value="Tom_Anim" onchange="saveData()"></td>
+                        <td><input class="editable" value="Tom#9012" onchange="saveData()"></td>
+                        <td><span class="equipe-badge equipe-animation">Animation</span></td>
+                        <td><input class="editable" value="Animateur Événements" onchange="saveData()"></td>
+                        <td><span class="status-actif">Actif</span></td>
+                        <td><input class="editable" type="date" value="2024-03-10" onchange="saveData()"></td>
+                        <td><input class="editable" value="15" onchange="saveData()"></td>
+                        <td><input class="editable" type="date" value="2025-05-28" onchange="saveData()"></td>
+                        <td class="notes"><input class="editable" value="Spécialisé mini-jeux et concours" onchange="saveData()"></td>
+                        <td><button class="btn btn-warning" onclick="editMember(this)">✏️</button></td>
+                    </tr>
+                    <tr data-equipe="Lore" data-statut="Pause">
+                        <td>004</td>
+                        <td><input class="editable" value="Sarah_Lore" onchange="saveData()"></td>
+                        <td><input class="editable" value="Sarah#3456" onchange="saveData()"></td>
+                        <td><span class="equipe-badge equipe-lore">Lore</span></td>
+                        <td><input class="editable" value="Assistante Lore" onchange="saveData()"></td>
+                        <td><span class="status-pause">Pause</span></td>
+                        <td><input class="editable" type="date" value="2024-04-05" onchange="saveData()"></td>
+                        <td><input class="editable" value="0" onchange="saveData()"></td>
+                        <td><input class="editable" type="date" value="2025-04-15" onchange="saveData()"></td>
+                        <td class="notes"><input class="editable" value="Pause études jusqu'en juin" onchange="saveData()"></td>
+                        <td><button class="btn btn-warning" onclick="editMember(this)">✏️</button></td>
+                    </tr>
+                    <tr data-equipe="MJ" data-statut="Actif">
+                        <td>005</td>
+                        <td><input class="editable" value="Lucas_MJ" onchange="saveData()"></td>
+                        <td><input class="editable" value="Lucas#7890" onchange="saveData()"></td>
+                        <td><span class="equipe-badge equipe-mj">MJ</span></td>
+                        <td><input class="editable" value="MJ Junior" onchange="saveData()"></td>
+                        <td><span class="status-actif">Actif</span></td>
+                        <td><input class="editable" type="date" value="2024-05-12" onchange="saveData()"></td>
+                        <td><input class="editable" value="12" onchange="saveData()"></td>
+                        <td><input class="editable" type="date" value="2025-05-31" onchange="saveData()"></td>
+                        <td class="notes"><input class="editable" value="En formation, très prometteur" onchange="saveData()"></td>
+                        <td><button class="btn btn-warning" onclick="editMember(this)">✏️</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="export-section">
+            <h3>🎯 Actions Rapides</h3>
+            <button class="btn btn-primary" onclick="backupData()">💾 Sauvegarder Données</button>
+            <button class="btn btn-success" onclick="printTable()">🖨️ Imprimer Tableau</button>
+            <button class="btn btn-warning" onclick="generateSummary()">📈 Résumé Exécutif</button>
+        </div>
+    </div>
+
+    <!-- Modal Ajout Membre -->
+    <div id="addModal" class="modal">
+        <div class="modal-content">
+            <h3>➕ Ajouter un Nouveau Membre</h3>
+            <form id="addMemberForm">
+                <div class="form-group">
+                    <label>Nom/Pseudo:</label>
+                    <input type="text" id="newNom" required>
+                </div>
+                <div class="form-group">
+                    <label>Discord:</label>
+                    <input type="text" id="newDiscord" required>
+                </div>
+                <div class="form-group">
+                    <label>Équipe:</label>
+                    <select id="newEquipe" required>
+                        <option value="">Sélectionner...</option>
+                        <option value="Lore">Lore</option>
+                        <option value="MJ">MJ</option>
+                        <option value="Animation">Animation</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Rôle/Spécialité:</label>
+                    <input type="text" id="newRole" required>
+                </div>
+                <div class="form-group">
+                    <label>Statut:</label>
+                    <select id="newStatut" required>
+                        <option value="Actif">Actif</option>
+                        <option value="Inactif">Inactif</option>
+                        <option value="Pause">Pause</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Heures/semaine:</label>
+                    <input type="number" id="newHeures" min="0" max="168">
+                </div>
+                <div class="form-group">
+                    <label>Notes:</label>
+                    <textarea id="newNotes"></textarea>
+                </div>
+                <div class="modal-buttons">
+                    <button type="button" class="btn" onclick="closeModal()">Annuler</button>
+                    <button type="submit" class="btn btn-success">Ajouter</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let memberIdCounter = 6;
+
+        function saveData() {
+            // Simulation de sauvegarde automatique
+            console.log('Données sauvegardées automatiquement');
+            updateStats();
+        }
+
+        function updateStats() {
+            const rows = document.querySelectorAll('#equipeTableBody tr:not(.hidden)');
+            let loreCount = 0, mjCount = 0, animCount = 0;
+            
+            rows.forEach(row => {
+                const equipe = row.getAttribute('data-equipe');
+                if (equipe === 'Lore') loreCount++;
+                else if (equipe === 'MJ') mjCount++;
+                else if (equipe === 'Animation') animCount++;
+            });
+
+            document.getElementById('statsLore').textContent = loreCount;
+            document.getElementById('statsMj').textContent = mjCount;
+            document.getElementById('statsAnimation').textContent = animCount;
+            document.getElementById('statsTotal').textContent = loreCount + mjCount + animCount;
+        }
+
+        function filterTable() {
+            const equipeFilter = document.getElementById('filterEquipe').value;
+            const statutFilter = document.getElementById('filterStatut').value;
+            const rows = document.querySelectorAll('#equipeTableBody tr');
+
+            rows.forEach(row => {
+                const equipe = row.getAttribute('data-equipe');
+                const statut = row.getAttribute('data-statut');
+                
+                const showEquipe = !equipeFilter || equipe === equipeFilter;
+                const showStatut = !statutFilter || statut === statutFilter;
+                
+                if (showEquipe && showStatut) {
+                    row.classList.remove('hidden');
+                } else {
+                    row.classList.add('hidden');
+                }
+            });
+            
+            updateStats();
+        }
+
+        function openAddModal() {
+            document.getElementById('addModal').style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('addModal').style.display = 'none';
+            document.getElementById('addMemberForm').reset();
+        }
+
+        document.getElementById('addMemberForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const nom = document.getElementById('newNom').value;
+            const discord = document.getElementById('newDiscord').value;
+            const equipe = document.getElementById('newEquipe').value;
+            const role = document.getElementById('newRole').value;
+            const statut = document.getElementById('newStatut').value;
+            const heures = document.getElementById('newHeures').value || '0';
+            const notes = document.getElementById('newNotes').value;
+            
+            const today = new Date().toISOString().split('T')[0];
+            const id = String(memberIdCounter++).padStart(3, '0');
+            
+            const equipeBadgeClass = equipe.toLowerCase() === 'lore' ? 'equipe-lore' : 
+                                  equipe.toLowerCase() === 'mj' ? 'equipe-mj' : 'equipe-animation';
+            const statutClass = statut.toLowerCase() === 'actif' ? 'status-actif' : 
+                              statut.toLowerCase() === 'inactif' ? 'status-inactif' : 'status-pause';
+            
+            const newRow = `
+                <tr data-equipe="${equipe}" data-statut="${statut}">
+                    <td>${id}</td>
+                    <td><input class="editable" value="${nom}" onchange="saveData()"></td>
+                    <td><input class="editable" value="${discord}" onchange="saveData()"></td>
+                    <td><span class="equipe-badge ${equipeBadgeClass}">${equipe}</span></td>
+                    <td><input class="editable" value="${role}" onchange="saveData()"></td>
+                    <td><span class="${statutClass}">${statut}</span></td>
+                    <td><input class="editable" type="date" value="${today}" onchange="saveData()"></td>
+                    <td><input class="editable" value="${heures}" onchange="saveData()"></td>
+                    <td><input class="editable" type="date" value="${today}" onchange="saveData()"></td>
+                    <td class="notes"><input class="editable" value="${notes}" onchange="saveData()"></td>
+                    <td><button class="btn btn-warning" onclick="editMember(this)">✏️</button></td>
+                </tr>
+            `;
+            
+            document.getElementById('equipeTableBody').insertAdjacentHTML('beforeend', newRow);
+            updateStats();
+            closeModal();
+        });
+
+        function exportToCSV() {
+            const table = document.getElementById('equipeTable');
+            let csv = '';
+            
+            // En-têtes
+            const headers = Array.from(table.querySelectorAll('th')).map(th => th.textContent);
+            csv += headers.join(',') + '\n';
+            
+            // Données
+            const rows = table.querySelectorAll('tbody tr:not(.hidden)');
+            rows.forEach(row => {
+                const cells = Array.from(row.querySelectorAll('td')).map(td => {
+                    const input = td.querySelector('input');
+                    const span = td.querySelector('span');
+                    return input ? input.value : (span ? span.textContent : td.textContent);
+                });
+                csv += cells.join(',') + '\n';
+            });
+            
+            // Téléchargement
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.setAttribute('hidden', '');
+            a.setAttribute('href', url);
+            a.setAttribute('download', `equipe_rp_${new Date().toISOString().split('T')[0]}.csv`);
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+
+        function generateReport() {
+            alert('📊 Rapport généré !\n\nRésumé de l\'équipe RP :\n- ' + 
+                  document.getElementById('statsTotal').textContent + ' membres au total\n- ' +
+                  document.getElementById('statsLore').textContent + ' membres Lore\n- ' +
+                  document.getElementById('statsMj').textContent + ' membres MJ\n- ' +
+                  document.getElementById('statsAnimation').textContent + ' membres Animation\n\n' +
+                  'Rapport complet exporté en CSV !');
+        }
+
+        function backupData() {
+            const data = {
+                timestamp: new Date().toISOString(),
+                members: []
+            };
+            
+            const rows = document.querySelectorAll('#equipeTableBody tr');
+            rows.forEach(row => {
+                const inputs = row.querySelectorAll('input');
+                const memberData = {};
+                inputs.forEach((input, index) => {
+                    memberData[`field_${index}`] = input.value;
+                });
+                data.members.push(memberData);
+            });
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `backup_equipe_rp_${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+        }
+
+        function printTable() {
+            window.print();
+        }
+
+        function generateSummary() {
+            const total = parseInt(document.getElementById('statsTotal').textContent);
+            const actifs = document.querySelectorAll('[data-statut="Actif"]:not(.hidden)').length;
+            const summary = `
+📈 RÉSUMÉ EXÉCUTIF - ÉQUIPE RP
+
+🎯 Effectifs:
+- Total: ${total} membres
+- Actifs: ${actifs} membres
+- Taux d'activité: ${Math.round((actifs/total)*100)}%
+
+👥 Répartition:
+- Lore: ${document.getElementById('statsLore').textContent} membres
+- MJ: ${document.getElementById('statsMj').textContent} membres  
+- Animation: ${document.getElementById('statsAnimation').textContent} membres
+
+✅ Recommandations:
+- Équipe bien équilibrée
+- Bon taux d'activité
+- Suivi régulier recommandé
+            `;
+            
+            alert(summary);
+        }
+
+        function editMember(btn) {
+            const row = btn.closest('tr');
+            const inputs = row.querySelectorAll('input');
+            inputs.forEach(input => {
+                input.style.background = '#fff3cd';
+                input.focus();
+                setTimeout(() => {
+                    input.style.background = '';
+                }, 2000);
+            });
+        }
+
+        // Fermer modal en cliquant à l'extérieur
+        window.onclick = function(event) {
+            const modal = document.getElementById('addModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+
+        // Initialisation
+        updateStats();
+    </script>
+</body>
+</html>
